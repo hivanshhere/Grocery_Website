@@ -71,9 +71,9 @@ async function initDb() {
     await dbp.query(`
         CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            email VARCHAR(100) NOT NULL,
-            password VARCHAR(100) NOT NULL,
+            name VARCHAR(50) NOT NULL,
+            email VARCHAR(50) NOT NULL,
+            password VARCHAR(255) NOT NULL,
             role VARCHAR(20) NOT NULL
         )
     `);
@@ -90,7 +90,7 @@ async function initDb() {
         CREATE TABLE IF NOT EXISTS stores (
             id INT AUTO_INCREMENT PRIMARY KEY,
             owner_id INT NOT NULL,
-            store_name VARCHAR(100) NOT NULL,
+            store_name VARCHAR(50) NOT NULL,
             delivery_available BOOLEAN DEFAULT 0,
             delivery_charge INT DEFAULT 0,
             min_order_free_delivery INT DEFAULT 0,
@@ -126,7 +126,7 @@ async function initDb() {
         CREATE TABLE IF NOT EXISTS order_items (
             id INT AUTO_INCREMENT PRIMARY KEY,
             order_id INT NOT NULL,
-            product_name VARCHAR(100) NOT NULL,
+            product_name VARCHAR(50) NOT NULL,
             unit_price DECIMAL(10,2) NOT NULL,
             qty INT NOT NULL
         )
