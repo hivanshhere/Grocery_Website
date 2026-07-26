@@ -26,18 +26,23 @@ font-weight:bold;
 }
 
 .login-button{
-padding:10px 18px;
-background:white;
-color:#27ae60;
-border-radius:6px;
-border:2px solid transparent;
-transition:all 0.25s ease;
+color:white;
+text-decoration:none;
+font-weight:bold;
+padding:0;
+background:transparent;
+border:none;
+font-size:inherit;
+cursor:pointer;
+border-radius:0;
+transition:none;
 }
 
 .login-button:hover{
-background:#eafaf1;
-border-color:#ffffff;
-transform:translateY(-1px);
+background:transparent;
+color:white;
+transform:none;
+box-shadow:none;
 }
 
 .hero{
