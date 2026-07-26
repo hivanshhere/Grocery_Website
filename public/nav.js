@@ -10,8 +10,8 @@
             el.style.display = showAddresses ? "inline-block" : "none";
         });
 
-        // Hide Login link once authenticated
-        document.querySelectorAll('a[href="login.html"]').forEach((el) => {
+        // Hide legacy login links once authenticated, but keep the home page button visible.
+        document.querySelectorAll('a[href="login.html"]:not(.login-button)').forEach((el) => {
             el.style.display = isLoggedIn ? "none" : "inline-block";
         });
     } catch {
