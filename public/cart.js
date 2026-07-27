@@ -636,8 +636,11 @@ async function placeOrder(storeId, deliveryFee) {
             return
         }
 
-        setMsg("Order placed successfully ✅")
         clearStoreCart(storeId)
+        if (data.order_id) {
+            localStorage.setItem("lastOrderId", String(data.order_id))
+        }
+        window.location.href = `order-confirmation.html${data.order_id ? `?order_id=${encodeURIComponent(data.order_id)}` : ""}`
 
     } catch {
         setMsg("Order failed")

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f6f1e8;
+            --card: #fffaf2;
+            --text: #1f1a17;
+            --muted: #6e6258;
+            --accent: #1f7a4d;
+            --border: rgba(31, 26, 23, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(circle at top, rgba(31, 122, 77, 0.14), transparent 38%),
+                linear-gradient(180deg, #fbf7f1 0%, var(--bg) 100%);
+            color: var(--text);
+        }
+
+        .card {
+            width: min(92vw, 640px);
+            padding: 40px 28px;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background: var(--card);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            margin-bottom: 18px;
+            border-radius: 50%;
+            background: rgba(31, 122, 77, 0.12);
+            color: var(--accent);
+            font-size: 34px;
+            font-weight: 700;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.1;
+        }
+
+        p {
+            margin: 14px 0 0;
+            color: var(--muted);
+            font-size: 1.05rem;
+        }
+
+        .order-label {
+            margin-top: 20px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            background: rgba(31, 122, 77, 0.08);
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .actions {
+            margin-top: 28px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .actions a {
+            text-decoration: none;
+            border-radius: 999px;
+            padding: 12px 20px;
+            font-weight: 700;
+        }
+
+        .primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <div class="badge">✓</div>
+        <h1>Your Order has been Placed</h1>
+        <p>Your order was placed successfully and is now being processed.</p>
+        <div id="orderStatus" class="order-label">Order placed</div>
+        <div class="actions">
+            <a class="primary" href="stores.html">Continue Shopping</a>
+            <a class="secondary" href="index.html">Go to Home</a>
+        </div>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get("order_id") || localStorage.getItem("lastOrderId");
+        const statusEl = document.getElementById("orderStatus");
+
+        if (orderId && statusEl) {
+            statusEl.textContent = `Order placed successfully. Order ID: ${orderId}`;
+        }
+
+        localStorage.removeItem("lastOrderId");
+    </script>
+</body>
+</html>
