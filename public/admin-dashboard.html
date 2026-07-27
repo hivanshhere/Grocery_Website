@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="storestyle.css">
+    <link rel="stylesheet" href="owner.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<header class="main-header">
+    <h1>Admin Panel</h1>
+    <nav class="nav-menu">
+        <a href="index.html">Home</a>
+        <a href="#" onclick="logout()">Logout</a>
+    </nav>
+</header>
+
+<main class="admin-dashboard">
+    <section class="admin-heading">
+        <div>
+            <h2>Website Control Center</h2>
+            <p>Manage store owners, customers, stores, warnings, and account removal.</p>
+        </div>
+        <button class="action-btn admin-refresh" type="button" onclick="loadAdminData()">Refresh</button>
+    </section>
+
+    <section class="stats-grid" aria-label="Website overview">
+        <div class="stat-card">
+            <span>Customers</span>
+            <strong id="customerCount">0</strong>
+        </div>
+        <div class="stat-card">
+            <span>Store Owners</span>
+            <strong id="ownerCount">0</strong>
+        </div>
+        <div class="stat-card">
+            <span>Stores</span>
+            <strong id="storeCount">0</strong>
+        </div>
+        <div class="stat-card">
+            <span>Orders</span>
+            <strong id="orderCount">0</strong>
+        </div>
+        <div class="stat-card">
+            <span>Total Sales</span>
+            <strong id="revenueCount">Rs 0</strong>
+        </div>
+        <div class="stat-card">
+            <span>Warnings</span>
+            <strong id="warningCount">0</strong>
+        </div>
+    </section>
+
+    <section class="admin-layout">
+        <div class="panel-card admin-panel">
+            <div class="panel-card__header">
+                <h2>Owners and Customers</h2>
+            </div>
+            <div class="panel-card__body">
+                <div class="admin-toolbar">
+                    <input id="userSearch" type="search" placeholder="Search users..." oninput="renderUsers()">
+                    <select id="roleFilter" onchange="renderUsers()">
+                        <option value="all">All roles</option>
+                        <option value="owner">Store owners</option>
+                        <option value="customer">Customers</option>
+                    </select>
+                </div>
+                <div id="userList" class="admin-list"></div>
+            </div>
+        </div>
+
+        <aside class="side-stack">
+            <div class="panel-card">
+                <div class="panel-card__header">
+                    <h2>Stores</h2>
+                </div>
+                <div class="panel-card__body">
+                    <div id="storeList" class="compact-list"></div>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-card__header">
+                    <h2>Recent Warnings</h2>
+                </div>
+                <div class="panel-card__body">
+                    <div id="warningList" class="compact-list"></div>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <p id="msg" role="status" aria-live="polite"></p>
+</main>
+
+<script src="admin.js"></script>
+</body>
+</html>

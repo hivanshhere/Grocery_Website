@@ -156,9 +156,34 @@ async function initDb() {
         )
     `);
 
+    await dbp.query(`
+        CREATE TABLE IF NOT EXISTS admin_warnings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            admin_id INT NOT NULL,
+            message VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
     try { await dbp.query("ALTER TABLE users ADD UNIQUE KEY uniq_users_email (email)"); } catch {}
     try { await dbp.query("ALTER TABLE stores ADD UNIQUE KEY uniq_stores_owner (owner_id)"); } catch {}
     try { await dbp.query("ALTER TABLE time_slots ADD UNIQUE KEY uniq_time_slot (store_id, slot_time)"); } catch {}
+
+    const adminEmail = process.env.ADMIN_EMAIL || "admin@freshmart.com";
+    const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+    const [admins] = await dbp.query("SELECT id FROM users WHERE role='admin' LIMIT 1");
+    if (!admins[0]) {
+        try {
+            await dbp.query(
+                "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'admin')",
+                ["Website Admin", adminEmail, adminPassword]
+            );
+            console.log(`Default admin ready: ${adminEmail}`);
+        } catch (e) {
+            if (!String(e?.message || "").toLowerCase().includes("duplicate")) throw e;
+        }
+    }
 }
 
 async function requireAuth(req, res, next) {
@@ -190,9 +215,45 @@ function requireCustomer(req, res, next) {
     next();
 }
 
+function requireAdmin(req, res, next) {
+    if (!req.auth?.user) return res.status(401).json({ message: "Login required" });
+    if (req.auth.user.role !== "admin") return res.status(403).json({ message: "Admin access required" });
+    next();
+}
+
 async function getOwnerStore(ownerId) {
     const [rows] = await dbp.query("SELECT * FROM stores WHERE owner_id=?", [ownerId]);
     return rows[0] || null;
+}
+
+async function deleteUserAndRelatedData(userId, role) {
+    await dbp.query("DELETE FROM user_sessions WHERE user_id=?", [userId]);
+    await dbp.query("DELETE FROM admin_warnings WHERE user_id=?", [userId]);
+
+    if (role === "owner") {
+        const [stores] = await dbp.query("SELECT id FROM stores WHERE owner_id=?", [userId]);
+        for (const store of stores) {
+            const [orders] = await dbp.query("SELECT id FROM orders WHERE store_id=?", [store.id]);
+            for (const order of orders) {
+                await dbp.query("DELETE FROM order_items WHERE order_id=?", [order.id]);
+            }
+            await dbp.query("DELETE FROM orders WHERE store_id=?", [store.id]);
+            await dbp.query("DELETE FROM products WHERE store_id=?", [store.id]);
+            await dbp.query("DELETE FROM time_slots WHERE store_id=?", [store.id]);
+        }
+        await dbp.query("DELETE FROM stores WHERE owner_id=?", [userId]);
+    }
+
+    if (role === "customer") {
+        const [orders] = await dbp.query("SELECT id FROM orders WHERE customer_id=?", [userId]);
+        for (const order of orders) {
+            await dbp.query("DELETE FROM order_items WHERE order_id=?", [order.id]);
+        }
+        await dbp.query("DELETE FROM orders WHERE customer_id=?", [userId]);
+        await dbp.query("DELETE FROM user_addresses WHERE user_id=?", [userId]);
+    }
+
+    await dbp.query("DELETE FROM users WHERE id=?", [userId]);
 }
 
 // ================= AUTH =================
@@ -575,6 +636,126 @@ app.post("/orders", requireAuth, requireCustomer, asyncHandler(async (req, res) 
     }
 
     res.json({ message: "Order placed", order_id: orderId });
+}));
+
+// ================= ADMIN APIs =================
+app.get("/admin/overview", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+    const [[userCounts], [storeCounts], [orderCounts], [warningCounts]] = await Promise.all([
+        dbp.query(`
+            SELECT
+                SUM(role='customer') AS customers,
+                SUM(role='owner') AS owners,
+                SUM(role='admin') AS admins
+            FROM users
+        `),
+        dbp.query("SELECT COUNT(*) AS stores FROM stores"),
+        dbp.query("SELECT COUNT(*) AS orders, COALESCE(SUM(total_amount), 0) AS revenue FROM orders"),
+        dbp.query("SELECT COUNT(*) AS warnings FROM admin_warnings")
+    ]);
+
+    res.json({
+        customers: Number(userCounts[0]?.customers) || 0,
+        owners: Number(userCounts[0]?.owners) || 0,
+        admins: Number(userCounts[0]?.admins) || 0,
+        stores: Number(storeCounts[0]?.stores) || 0,
+        orders: Number(orderCounts[0]?.orders) || 0,
+        revenue: Number(orderCounts[0]?.revenue) || 0,
+        warnings: Number(warningCounts[0]?.warnings) || 0
+    });
+}));
+
+app.get("/admin/users", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+    const [rows] = await dbp.query(`
+        SELECT
+            u.id,
+            u.name,
+            u.email,
+            u.role,
+            s.id AS store_id,
+            s.store_name,
+            COUNT(DISTINCT o.id) AS order_count,
+            COUNT(DISTINCT w.id) AS warning_count,
+            MAX(w.created_at) AS last_warning_at
+        FROM users u
+        LEFT JOIN stores s ON s.owner_id = u.id
+        LEFT JOIN orders o ON o.customer_id = u.id
+        LEFT JOIN admin_warnings w ON w.user_id = u.id
+        WHERE u.role IN ('customer', 'owner')
+        GROUP BY u.id, u.name, u.email, u.role, s.id, s.store_name
+        ORDER BY u.role DESC, u.id DESC
+    `);
+    res.json({ users: rows });
+}));
+
+app.get("/admin/stores", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+    const [rows] = await dbp.query(`
+        SELECT
+            s.id,
+            s.store_name,
+            s.owner_id,
+            u.name AS owner_name,
+            u.email AS owner_email,
+            COUNT(DISTINCT p.id) AS product_count,
+            COUNT(DISTINCT o.id) AS order_count
+        FROM stores s
+        JOIN users u ON u.id = s.owner_id
+        LEFT JOIN products p ON p.store_id = s.id
+        LEFT JOIN orders o ON o.store_id = s.id
+        GROUP BY s.id, s.store_name, s.owner_id, u.name, u.email
+        ORDER BY s.id DESC
+    `);
+    res.json({ stores: rows });
+}));
+
+app.get("/admin/warnings", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+    const [rows] = await dbp.query(`
+        SELECT
+            w.id,
+            w.user_id,
+            w.admin_id,
+            w.message,
+            w.created_at,
+            u.name AS user_name,
+            u.email AS user_email,
+            u.role AS user_role,
+            a.name AS admin_name
+        FROM admin_warnings w
+        JOIN users u ON u.id = w.user_id
+        JOIN users a ON a.id = w.admin_id
+        ORDER BY w.id DESC
+        LIMIT 50
+    `);
+    res.json({ warnings: rows });
+}));
+
+app.post("/admin/users/:userId/warnings", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+    const userId = Number(req.params.userId);
+    const message = String(req.body?.message || "").trim();
+    if (!Number.isFinite(userId)) return res.status(400).json({ message: "Invalid user id" });
+    if (!message) return res.status(400).json({ message: "Warning message required" });
+
+    const [users] = await dbp.query("SELECT id, role FROM users WHERE id=?", [userId]);
+    if (!users[0]) return res.status(404).json({ message: "User not found" });
+    if (users[0].role === "admin") return res.status(403).json({ message: "Admin users cannot be warned" });
+
+    await dbp.query(
+        "INSERT INTO admin_warnings (user_id, admin_id, message) VALUES (?, ?, ?)",
+        [userId, req.auth.user.id, message]
+    );
+    res.json({ message: "Warning sent" });
+}));
+
+app.delete("/admin/users/:userId", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+    const userId = Number(req.params.userId);
+    if (!Number.isFinite(userId)) return res.status(400).json({ message: "Invalid user id" });
+    if (userId === req.auth.user.id) return res.status(403).json({ message: "You cannot remove yourself" });
+
+    const [users] = await dbp.query("SELECT id, role FROM users WHERE id=?", [userId]);
+    if (!users[0]) return res.status(404).json({ message: "User not found" });
+    if (users[0].role === "admin") return res.status(403).json({ message: "Admin users cannot be removed here" });
+
+    await deleteUserAndRelatedData(userId, users[0].role);
+    res.json({ message: "User removed" });
 }));
 
 // ================= ERROR HANDLER =================

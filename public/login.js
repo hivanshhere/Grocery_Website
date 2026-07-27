@@ -43,7 +43,9 @@ function login() {
             return value.endsWith(".html") || value.includes(".html?");
         };
 
-        if (data.user.role === "owner") {
+        if (data.user.role === "admin") {
+            window.location.href = "admin-dashboard.html";
+        } else if (data.user.role === "owner") {
             window.location.href = "owner-dashboard.html";
         } else {
             window.location.href = isSafeLocalHtml(afterLogin) ? afterLogin : "stores.html";
