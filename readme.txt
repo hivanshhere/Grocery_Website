@@ -1,3 +1,5 @@
-//to connect database //
+// to run the project 
 
-node server.js
+npm start 
+
+// it will automatically connect to the database 
