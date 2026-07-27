@@ -1,3 +1,5 @@
+//query to update delivery settings for a store
+
 router.post("/delivery-settings", requireOwner, async (req, res) => {
     const { delivery_available, delivery_charge, min_order, pickup_available } = req.body;
 

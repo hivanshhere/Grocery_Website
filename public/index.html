@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Local Grocery Store</title>
 <link rel="stylesheet" href="style.css">
 </head>
-    <body>
+<body>
     <header>
-        <h1>FreshMart Grocery</h1>
+        <a class="brand" href="index.html" aria-label="FreshMart Grocery home">
+            <span class="brand-mark">F</span>
+            <span>FreshMart Grocery</span>
+        </a>
 
         <nav>
             <a href="index.html">Home</a>
@@ -15,29 +19,70 @@
             <a class="login-button" href="login.html">Login</a>
         </nav>
     </header>
-<section class="hero">
-    <h2>Order Groceries From Your Local Store</h2>
-    <p>Fresh products delivered to your doorstep or ready for pickup.</p>
-    <button onclick="localStorage.setItem('afterLogin','stores.html'); location.href='login.html';">Shop Now</button>
-</section>
-<section class="features">
-    <div class="card">
-    <h3>Fresh Products</h3>
-    <p>Daily fresh grocery items available.</p>
-</div>
-<div class="card">
-    <h3>Fast Delivery</h3>
-    <p>Delivery within limited distance.</p>
-</div>
 
-<div class="card">
-    <h3>Store Pickup</h3>
-    <p>Order online and pick up from store.</p>
-</div>
-</section>
-<footer>
-    <p>© 2026 Local Grocery Store</p>
-</footer>
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <p class="eyebrow">Local stores. Fresher baskets.</p>
+                <h1>Order groceries from trusted nearby stores</h1>
+                <p class="hero-copy">Choose daily essentials, compare local availability, and get your order delivered nearby or packed for quick pickup.</p>
+                <div class="hero-actions">
+                    <button onclick="localStorage.setItem('afterLogin','stores.html'); location.href='login.html';">Shop Now</button>
+                    <a href="login.html">Login to continue</a>
+                </div>
+            </div>
+
+            <div class="hero-panel" aria-label="FreshMart service highlights">
+                <div class="panel-row">
+                    <span class="panel-dot"></span>
+                    <div>
+                        <strong>Fresh stock today</strong>
+                        <p>Everyday grocery items from stores around you.</p>
+                    </div>
+                </div>
+                <div class="panel-row">
+                    <span class="panel-dot"></span>
+                    <div>
+                        <strong>Delivery or pickup</strong>
+                        <p>Pick the option that fits your schedule.</p>
+                    </div>
+                </div>
+                <div class="mini-stats">
+                    <div>
+                        <strong>Fast</strong>
+                        <span>nearby delivery</span>
+                    </div>
+                    <div>
+                        <strong>Easy</strong>
+                        <span>store pickup</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features" aria-label="FreshMart benefits">
+            <div class="card">
+                <span class="card-icon">01</span>
+                <h3>Fresh Products</h3>
+                <p>Daily grocery essentials listed by local stores, ready when you need them.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">02</span>
+                <h3>Fast Delivery</h3>
+                <p>Delivery is handled within the store's supported nearby distance.</p>
+            </div>
+
+            <div class="card">
+                <span class="card-icon">03</span>
+                <h3>Store Pickup</h3>
+                <p>Order online, skip the searching, and collect your packed basket from store.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Local Grocery Store</p>
+    </footer>
 <script src="nav.js"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 .admin-dashboard{
 max-width:1180px;
 margin:0 auto;
-padding:30px 16px 50px;
+padding:34px 18px 54px;
 }
 
 .admin-heading{
@@ -16,6 +16,7 @@ margin-bottom:22px;
 margin:0 0 6px;
 color:#222;
 font-size:28px;
+line-height:1.15;
 }
 
 .admin-heading p{
@@ -37,14 +38,21 @@ margin-bottom:24px;
 
 .stat-card{
 background:white;
-border:1px solid rgba(0,0,0,0.07);
-border-radius:8px;
-box-shadow:0 5px 15px rgba(0,0,0,0.12);
+border:1px solid rgba(39,174,96,0.11);
+border-radius:10px;
+box-shadow:0 8px 24px rgba(0,0,0,0.10);
 padding:16px;
 display:flex;
 flex-direction:column;
 gap:8px;
 min-height:80px;
+transition:transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.stat-card:hover{
+transform:translateY(-4px);
+box-shadow:0 14px 28px rgba(0,0,0,0.14);
+border-color:rgba(39,174,96,0.32);
 }
 
 .stat-card span{
@@ -86,6 +94,7 @@ border-radius:8px;
 font-size:15px;
 outline:none;
 background:white;
+transition:border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .admin-toolbar input:focus,
@@ -107,8 +116,9 @@ grid-template-columns:minmax(0, 1fr) minmax(260px, 0.8fr);
 gap:16px;
 padding:16px;
 border:1px solid rgba(0,0,0,0.08);
-border-radius:8px;
+border-radius:10px;
 background:#fff;
+box-shadow:0 8px 20px rgba(0,0,0,0.06);
 }
 
 .admin-user-card h3{
@@ -162,6 +172,12 @@ border-radius:8px;
 padding:10px 12px;
 font-weight:bold;
 cursor:pointer;
+transition:background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-actions button:hover{
+transform:translateY(-1px);
+box-shadow:0 8px 18px rgba(0,0,0,0.12);
 }
 
 .warn-btn{
@@ -200,8 +216,8 @@ flex-direction:column;
 gap:5px;
 padding:12px;
 border:1px solid rgba(0,0,0,0.08);
-border-radius:8px;
-background:#fff;
+border-radius:10px;
+background:#fbfdfb;
 }
 
 .compact-item strong{
@@ -218,7 +234,7 @@ line-height:1.35;
 padding:14px;
 border:1px dashed rgba(0,0,0,0.18);
 border-radius:8px;
-background:#fafafa;
+background:#fbfdfb;
 color:rgba(0,0,0,0.62);
 }
 

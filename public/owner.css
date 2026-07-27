@@ -1,14 +1,16 @@
 /* Owner dashboard: keep same project theme */
 
 .dashboard{
-max-width:980px;
+max-width:1080px;
 margin:0 auto;
-padding:30px 16px 50px;
+padding:34px 18px 54px;
 }
 
 .dashboard-title{
 margin:0 0 18px;
-color:#222;
+color:#18221b;
+font-size:30px;
+line-height:1.15;
 }
 
 .dashboard-grid{
@@ -20,13 +22,15 @@ gap:22px;
 .panel-card{
 background:white;
 border-radius:12px;
-box-shadow:0 5px 15px rgba(0,0,0,0.15);
+box-shadow:0 8px 24px rgba(0,0,0,0.10);
 overflow:hidden;
+border:1px solid rgba(39,174,96,0.11);
 }
 
 .panel-card__header{
 padding:16px 18px;
-border-bottom:1px solid rgba(0,0,0,0.08);
+border-bottom:1px solid rgba(39,174,96,0.12);
+background:linear-gradient(180deg,#ffffff 0%,#f8fffb 100%);
 }
 
 .panel-card__header h2{
@@ -74,6 +78,8 @@ border-radius:8px;
 border:1px solid rgba(0,0,0,0.18);
 outline:none;
 font-size:15px;
+background:#fbfdfb;
+transition:border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .form-field select{
@@ -82,17 +88,20 @@ border-radius:8px;
 border:1px solid rgba(0,0,0,0.18);
 outline:none;
 font-size:15px;
-background:white;
+background:#fbfdfb;
+transition:border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .form-field input:focus{
 border-color:#27ae60;
 box-shadow:0 0 0 3px rgba(39,174,96,0.18);
+background:white;
 }
 
 .form-field select:focus{
 border-color:#27ae60;
 box-shadow:0 0 0 3px rgba(39,174,96,0.18);
+background:white;
 }
 
 .form-grid{
@@ -112,12 +121,13 @@ cursor:pointer;
 font-weight:bold;
 font-size:16px;
 transition:all 0.2s ease;
+box-shadow:0 8px 18px rgba(39,174,96,0.20);
 }
 
 .action-btn:hover{
 background:#219150;
 transform:translateY(-1px);
-box-shadow:0px 8px 18px rgba(0,0,0,0.18);
+box-shadow:0px 10px 22px rgba(39,174,96,0.26);
 }
 
 #msg{
@@ -233,7 +243,7 @@ gap:12px;
 padding:10px 12px;
 border:1px solid rgba(0,0,0,0.10);
 border-radius:10px;
-background:#fff;
+background:#fbfdfb;
 }
 
 .slot-row__time{
@@ -250,10 +260,12 @@ padding:8px 12px;
 border-radius:8px;
 cursor:pointer;
 font-weight:bold;
+transition:background 0.2s ease, transform 0.2s ease;
 }
 
 .slot-row__btn:hover{
 background:#219150;
+transform:translateY(-1px);
 }
 
 @media (max-width: 780px){

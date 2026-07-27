@@ -7,12 +7,13 @@
     <style>
         :root {
             color-scheme: light;
-            --bg: #f6f1e8;
-            --card: #fffaf2;
-            --text: #1f1a17;
-            --muted: #6e6258;
-            --accent: #1f7a4d;
-            --border: rgba(31, 26, 23, 0.12);
+            --bg: #eef6f1;
+            --card: #ffffff;
+            --text: #18221b;
+            --muted: rgba(24, 34, 27, 0.68);
+            --accent: #27ae60;
+            --accent-dark: #158146;
+            --border: rgba(39, 174, 96, 0.14);
         }
 
         * {
@@ -24,10 +25,11 @@
             min-height: 100vh;
             display: grid;
             place-items: center;
+            padding: 18px;
             font-family: Arial, Helvetica, sans-serif;
             background:
-                radial-gradient(circle at top, rgba(31, 122, 77, 0.14), transparent 38%),
-                linear-gradient(180deg, #fbf7f1 0%, var(--bg) 100%);
+                radial-gradient(circle at 12% 12%, rgba(39, 174, 96, 0.12), transparent 28%),
+                linear-gradient(180deg, #f7fbf8 0%, var(--bg) 100%);
             color: var(--text);
         }
 
@@ -35,9 +37,9 @@
             width: min(92vw, 640px);
             padding: 40px 28px;
             border: 1px solid var(--border);
-            border-radius: 24px;
+            border-radius: 12px;
             background: var(--card);
-            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.14);
             text-align: center;
         }
 
@@ -48,11 +50,12 @@
             width: 72px;
             height: 72px;
             margin-bottom: 18px;
-            border-radius: 50%;
-            background: rgba(31, 122, 77, 0.12);
-            color: var(--accent);
+            border-radius: 18px;
+            background: rgba(39, 174, 96, 0.12);
+            color: var(--accent-dark);
             font-size: 34px;
             font-weight: 700;
+            box-shadow: 0 0 0 8px rgba(39, 174, 96, 0.06);
         }
 
         h1 {
@@ -70,10 +73,11 @@
         .order-label {
             margin-top: 20px;
             padding: 14px 18px;
-            border-radius: 16px;
-            background: rgba(31, 122, 77, 0.08);
-            color: var(--accent);
+            border-radius: 10px;
+            background: #eef8f1;
+            color: var(--accent-dark);
             font-weight: 700;
+            border: 1px solid rgba(39, 174, 96, 0.16);
         }
 
         .actions {
@@ -86,14 +90,24 @@
 
         .actions a {
             text-decoration: none;
-            border-radius: 999px;
+            border-radius: 8px;
             padding: 12px 20px;
             font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .actions a:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
         }
 
         .primary {
             background: var(--accent);
             color: white;
+        }
+
+        .primary:hover {
+            background: #219150;
         }
 
         .secondary {
@@ -105,7 +119,7 @@
 </head>
 <body>
     <main class="card">
-        <div class="badge">✓</div>
+        <div class="badge">&#10003;</div>
         <h1>Your Order has been Placed</h1>
         <p>Your order was placed successfully and is now being processed.</p>
         <div id="orderStatus" class="order-label">Order placed</div>

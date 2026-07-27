@@ -17,7 +17,7 @@ const editStoreNameInput = document.getElementById("editStoreName");
 const addProductBtn = document.getElementById("addProductBtn");
 const ownerProductListEl = document.getElementById("ownerProductList");
 
-/* 🔥 NEW: delivery inputs */
+/* NEW: delivery inputs */
 const deliveryAvailableEl = document.getElementById("deliveryAvailable");
 const deliveryChargeEl = document.getElementById("deliveryCharge");
 const minOrderEl = document.getElementById("minOrder");
@@ -74,7 +74,7 @@ function setStoreUi(store) {
     localStorage.setItem("storeId", String(store.id));
     localStorage.setItem("storeName", String(store.store_name));
 
-    /* 🔥 NEW: load delivery settings into UI */
+    /* NEW: load delivery settings into UI */
     if (deliveryAvailableEl) deliveryAvailableEl.checked = !!store.delivery_available;
     if (deliveryChargeEl) deliveryChargeEl.value = store.delivery_charge || 0;
     if (minOrderEl) minOrderEl.value = store.min_order_free_delivery || 0;
@@ -179,7 +179,7 @@ async function createStore() {
     }
 }
 
-/* 🔥 NEW FUNCTION */
+/* NEW FUNCTION */
 async function saveDeliverySettings() {
     if (!currentStore) {
         setMsg("Create your store first");

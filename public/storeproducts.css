@@ -1,7 +1,11 @@
 body{
 margin:0;
 font-family:Arial,Helvetica,sans-serif;
-background:#f4f6f7;
+background:
+radial-gradient(circle at 8% 0%, rgba(39,174,96,0.10), transparent 26%),
+linear-gradient(180deg,#f7fbf8 0%,#eef6f1 100%);
+color:#18221b;
+min-height:100vh;
 }
 
 .main-header{
@@ -11,24 +15,37 @@ align-items:center;
 padding:18px 50px;
 background:#27ae60;
 color:white;
-box-shadow:0 4px 12px rgba(0,0,0,0.15);
+box-shadow:0 5px 18px rgba(0,0,0,0.14);
+position:sticky;
+top:0;
+z-index:10;
 }
 
 .main-header h1{
 margin:0;
 font-size:24px;
+font-weight:800;
 }
 
 .nav-menu{
 display:flex;
-gap:25px;
+align-items:center;
+gap:10px;
+flex-wrap:wrap;
 }
 
 .nav-menu a{
 color:white;
 text-decoration:none;
-font-size:17px;
 font-weight:bold;
+padding:9px 12px;
+border-radius:8px;
+transition:background 0.2s ease, transform 0.2s ease;
+}
+
+.nav-menu a:hover{
+background:rgba(255,255,255,0.16);
+transform:translateY(-1px);
 }
 
 .product-container{
@@ -45,13 +62,15 @@ background:white;
 padding:20px;
 border-radius:10px;
 text-align:center;
-box-shadow:0 5px 15px rgba(0,0,0,0.15);
-transition:0.3s;
+box-shadow:0 8px 24px rgba(0,0,0,0.10);
+transition:transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+border:1px solid rgba(39,174,96,0.11);
 }
 
 .product-card:hover{
-transform:translateY(-6px);
-box-shadow:0 12px 22px rgba(0,0,0,0.2);
+transform:translateY(-7px);
+box-shadow:0 16px 32px rgba(0,0,0,0.16);
+border-color:rgba(39,174,96,0.32);
 }
 
 .product-card h3{
@@ -68,12 +87,16 @@ background:#27ae60;
 color:white;
 border:none;
 padding:8px 14px;
-border-radius:6px;
+border-radius:8px;
 cursor:pointer;
+font-weight:bold;
+transition:all 0.2s ease;
+box-shadow:0 8px 18px rgba(39,174,96,0.20);
 }
 
 .product-card button:hover{
 background:#219150;
+transform:translateY(-1px);
 }
 
 .search-section{
@@ -84,9 +107,37 @@ margin:30px 0;
 
 .search-section input{
 width:320px;
-padding:10px;
-border-radius:20px;
-border:1px solid #ccc;
+padding:12px 14px;
+border-radius:999px;
+border:1px solid rgba(0,0,0,0.18);
 font-size:15px;
 outline:none;
+background:white;
+box-shadow:0 8px 22px rgba(0,0,0,0.08);
+}
+
+.search-section input:focus{
+border-color:#27ae60;
+box-shadow:0 0 0 3px rgba(39,174,96,0.18),0 8px 22px rgba(0,0,0,0.08);
+}
+
+@media (max-width: 640px){
+.main-header{
+padding:16px 18px;
+gap:12px;
+flex-wrap:wrap;
+}
+
+.product-container{
+padding:24px 18px;
+gap:18px;
+}
+
+.search-section{
+padding:0 18px;
+}
+
+.search-section input{
+width:100%;
+}
 }
