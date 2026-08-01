@@ -16,6 +16,8 @@ const editStoreSectionEl = document.getElementById("editStoreSection");
 const editStoreNameInput = document.getElementById("editStoreName");
 const addProductBtn = document.getElementById("addProductBtn");
 const ownerProductListEl = document.getElementById("ownerProductList");
+const productImageInput = document.getElementById("pimage");
+const productImagePreview = document.getElementById("pimagePreview");
 
 /* Delivery settings inputs */
 const deliveryAvailableEl = document.getElementById("deliveryAvailable");
@@ -28,6 +30,15 @@ const slotTimeInputEl = document.getElementById("slotTimeInput");
 const slotListEl = document.getElementById("slotList");
 
 let currentStore = null;
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 function setMsg(text) {
     if (!msgEl) return;
@@ -54,6 +65,50 @@ function authHeaders() {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
     };
+}
+
+function readProductImage() {
+    const file = productImageInput?.files?.[0];
+    if (!file) return Promise.resolve("");
+
+    const allowedTypes = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+        return Promise.reject(new Error("Choose a PNG, JPG, WEBP, or GIF image"));
+    }
+    if (file.size > 5 * 1024 * 1024) {
+        return Promise.reject(new Error("Product image must be under 5 MB"));
+    }
+
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(new Error("Could not read product image"));
+        reader.readAsDataURL(file);
+    });
+}
+
+function updateProductImagePreview() {
+    const file = productImageInput?.files?.[0];
+    if (!productImagePreview) return;
+
+    if (!file) {
+        productImagePreview.removeAttribute("src");
+        productImagePreview.style.display = "none";
+        return;
+    }
+
+    readProductImage()
+        .then((imageUrl) => {
+            productImagePreview.src = imageUrl;
+            productImagePreview.style.display = "block";
+            setMsg("");
+        })
+        .catch((e) => {
+            productImageInput.value = "";
+            productImagePreview.removeAttribute("src");
+            productImagePreview.style.display = "none";
+            setMsgError(e.message);
+        });
 }
 
 async function fetchJson(url, options) {
@@ -250,9 +305,13 @@ function renderProducts(products) {
         const priceText = Number.isFinite(priceNum) ? priceNum.toFixed(2) : String(p.price ?? "");
 
         const div = document.createElement("div");
-        div.className = "store-card";
+        div.className = "store-card owner-product-card";
+        const imageMarkup = p.image_url
+            ? `<img class="product-card__image" src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}">`
+            : `<div class="product-card__image product-card__image--empty" aria-hidden="true">No image</div>`;
         div.innerHTML = `
-            <h3>${p.name}</h3>
+            ${imageMarkup}
+            <h3>${escapeHtml(p.name)}</h3>
             <p>Price: ₹${priceText} / ${quantity} ${unit}</p>
             <button type="button">Remove</button>
         `;
@@ -324,16 +383,22 @@ async function addProduct() {
     }
 
     try {
+        const image_url = await readProductImage();
         const data = await fetchJson(`${API_BASE}/owner/products`, {
             method: "POST",
             headers: authHeaders(),
-            body: JSON.stringify({ name, price, quantity, unit })
+            body: JSON.stringify({ name, price, quantity, unit, image_url })
         });
         setMsgSuccess(data.message);
         document.getElementById("pname").value = "";
         document.getElementById("pprice").value = "";
         document.getElementById("pquantity").value = "";
         document.getElementById("punit").value = "kg";
+        if (productImageInput) productImageInput.value = "";
+        if (productImagePreview) {
+            productImagePreview.removeAttribute("src");
+            productImagePreview.style.display = "none";
+        }
         await loadStoreAndProducts({ preserveMsg: true });
     } catch (e) {
         setMsgError(e.message);
@@ -395,4 +460,5 @@ async function logout() {
     window.location.href = "login.html";
 }
 
+if (productImageInput) productImageInput.addEventListener("change", updateProductImagePreview);
 loadStoreAndProducts();

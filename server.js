@@ -8,7 +8,7 @@ const mysql = require("mysql2/promise");
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "8mb" }));
 app.use(express.static("public"));
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -40,6 +40,23 @@ function userDto(row) {
 
 function newToken() {
     return crypto.randomBytes(32).toString("hex");
+}
+
+function normalizeProductImage(imageUrl) {
+    const value = String(imageUrl || "").trim();
+    if (!value) return "";
+    const isImageDataUrl = /^data:image\/(png|jpe?g|webp|gif);base64,/i.test(value);
+    if (!isImageDataUrl) {
+        const err = new Error("Product image must be a PNG, JPG, WEBP, or GIF");
+        err.statusCode = 400;
+        throw err;
+    }
+    if (value.length > 7 * 1024 * 1024) {
+        const err = new Error("Product image is too large. Please choose an image under 5 MB.");
+        err.statusCode = 413;
+        throw err;
+    }
+    return value;
 }
 
 async function ensureDatabaseExists() {
@@ -105,7 +122,8 @@ async function initDb() {
             name VARCHAR(100) NOT NULL,
             price DECIMAL(10,2) NOT NULL,
             quantity DECIMAL(10,2) NOT NULL,
-            unit VARCHAR(20) NOT NULL
+            unit VARCHAR(20) NOT NULL,
+            image_url MEDIUMTEXT
         )
     `);
 
@@ -169,6 +187,7 @@ async function initDb() {
     try { await dbp.query("ALTER TABLE users ADD UNIQUE KEY uniq_users_email (email)"); } catch {}
     try { await dbp.query("ALTER TABLE stores ADD UNIQUE KEY uniq_stores_owner (owner_id)"); } catch {}
     try { await dbp.query("ALTER TABLE time_slots ADD UNIQUE KEY uniq_time_slot (store_id, slot_time)"); } catch {}
+    try { await dbp.query("ALTER TABLE products ADD COLUMN image_url MEDIUMTEXT"); } catch {}
 
     const adminEmail = process.env.ADMIN_EMAIL || "admin@freshmart.com";
     const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
@@ -372,7 +391,7 @@ app.get("/products/:storeId", asyncHandler(async (req, res) => {
     if (!Number.isFinite(storeId)) return res.status(400).json({ message: "Invalid store id" });
 
     const [rows] = await dbp.query(
-        "SELECT id, store_id, name, price, quantity, unit FROM products WHERE store_id=? ORDER BY id DESC",
+        "SELECT id, store_id, name, price, quantity, unit, image_url FROM products WHERE store_id=? ORDER BY id DESC",
         [storeId]
     );
     res.json(rows);
@@ -432,24 +451,25 @@ app.get("/owner/products", requireAuth, requireOwner, asyncHandler(async (req, r
     if (!store) return res.json({ products: [] });
 
     const [rows] = await dbp.query(
-        "SELECT id, store_id, name, price, quantity, unit FROM products WHERE store_id=? ORDER BY id DESC",
+        "SELECT id, store_id, name, price, quantity, unit, image_url FROM products WHERE store_id=? ORDER BY id DESC",
         [store.id]
     );
     res.json({ products: rows });
 }));
 
 app.post("/owner/products", requireAuth, requireOwner, asyncHandler(async (req, res) => {
-    const { name, price, quantity, unit } = req.body || {};
+    const { name, price, quantity, unit, image_url } = req.body || {};
     if (!name || price === undefined || quantity === undefined || !unit) {
         return res.status(400).json({ message: "Missing fields" });
     }
+    const productImage = normalizeProductImage(image_url);
 
     const store = await getOwnerStore(req.auth.user.id);
     if (!store) return res.status(400).json({ message: "Create a store first" });
 
     await dbp.query(
-        "INSERT INTO products (store_id, name, price, quantity, unit) VALUES (?, ?, ?, ?, ?)",
-        [store.id, name, price, quantity, unit]
+        "INSERT INTO products (store_id, name, price, quantity, unit, image_url) VALUES (?, ?, ?, ?, ?, ?)",
+        [store.id, name, price, quantity, unit, productImage]
     );
     res.json({ message: "Product added" });
 }));
@@ -762,7 +782,8 @@ app.delete("/admin/users/:userId", requireAuth, requireAdmin, asyncHandler(async
 app.use((err, req, res, next) => {
     console.error(err);
     if (res.headersSent) return next(err);
-    res.status(500).json({ message: "Server error" });
+    const statusCode = Number(err.statusCode || err.status) || 500;
+    res.status(statusCode).json({ message: statusCode >= 500 ? "Server error" : err.message });
 });
 
 // ================= START =================

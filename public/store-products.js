@@ -13,6 +13,15 @@ const storeInfoDeliveryEl = document.getElementById("storeInfoDelivery");
 const storeInfoPickupEl = document.getElementById("storeInfoPickup");
 const storeInfoFeeEl = document.getElementById("storeInfoFee");
 
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function getCartData() {
     return JSON.parse(localStorage.getItem("storeCarts")) || {};
 }
@@ -98,11 +107,15 @@ function createProductCard(product) {
 
     const div = document.createElement("div");
     div.classList.add("store-card", "store-card--product");
+    const imageMarkup = product.image_url
+        ? `<img class="product-card__image" src="${escapeHtml(product.image_url)}" alt="${escapeHtml(name)}">`
+        : `<div class="product-card__image product-card__image--empty" aria-hidden="true">No image</div>`;
 
     div.innerHTML = `
+        ${imageMarkup}
         <div class="product-card__top">
-            <h3 class="product-card__name">${name}</h3>
-            <p class="product-card__price">${priceText}</p>
+            <h3 class="product-card__name">${escapeHtml(name)}</h3>
+            <p class="product-card__price">${escapeHtml(priceText)}</p>
         </div>
 
         <div class="product-card__actions">
@@ -124,7 +137,8 @@ function createProductCard(product) {
         name,
         price: priceText,
         quantity,
-        unit
+        unit,
+        image_url: product.image_url || ""
     };
 
     if (incBtn) {
